@@ -18,7 +18,7 @@ func containerSaveImage(config containerSaveImageOptions, telemetryData *telemet
 	var cachePath = "./cache"
 
 	fileUtils := piperutils.Files{}
-
+	log.Entry().Infof("RegistryURL '%s' ", config.ContainerRegistryURL)
 	dClientOptions := piperDocker.ClientOptions{ImageName: config.ContainerImage, RegistryURL: config.ContainerRegistryURL, LocalPath: config.FilePath, ImageFormat: config.ImageFormat}
 	dClient := &piperDocker.Client{}
 	dClient.SetOptions(dClientOptions)

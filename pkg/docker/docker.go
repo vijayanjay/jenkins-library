@@ -281,7 +281,13 @@ func (c *Client) getImageRef(image string) (name.Reference, error) {
 		log.Entry().Infof("after replacement, final registry  %v ", registry)
 		opts = append(opts, name.WithDefaultRegistry(registry))
 	}
-
+	var tmp name.Reference
+	var err error
+	tmp, err = name.ParseReference(path.Join(registry, image), opts...)
+	if err != nil {
+		fmt.Errorf("failed to ParseReference")
+	}
+	log.Entry().Infof("Final reference %v", tmp.Name())
 	return name.ParseReference(path.Join(registry, image), opts...)
 }
 

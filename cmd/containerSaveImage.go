@@ -82,17 +82,17 @@ func correctContainerDockerConfigEnvVar(config *containerSaveImageOptions, utils
 	}
 
 	if len(config.ContainerRegistryURL) > 0 && len(config.ContainerRegistryUser) > 0 && len(config.ContainerRegistryPassword) > 0 {
-		if dockerConfigFile, err = piperDocker.CreateDockerConfigJSON(config.ContainerRegistryURL, config.ContainerRegistryUser, config.ContainerRegistryPassword, dockerConfigFile, dockerConfigFile, utils); err != nil {
+		if _, err = piperDocker.CreateDockerConfigJSON(config.ContainerRegistryURL, config.ContainerRegistryUser, config.ContainerRegistryPassword, dockerConfigFile, dockerConfigFile, utils); err != nil {
 			log.Entry().Warningf("failed to update Docker config.json: %v", err)
 		}
 	}
-	content, err := os.ReadFile(dockerConfigFile)
-	if err != nil {
-		log.Entry().Warningf("failed to read: %v", err)
-	}
-	fileContent := string(content)
-	log.Entry().Info("Content of the file: %v", fileContent)
-	os.Setenv("DOCKER_CONFIG", dockerConfigFile)
+	// content, err := os.ReadFile(dockerConfigFile)
+	// if err != nil {
+	// 	log.Entry().Warningf("failed to read: %v", err)
+	// }
+	// fileContent := string(content)
+	// log.Entry().Info("Content of the file: %v", fileContent)
+	os.Setenv("DOCKER_CONFIG", dockerConfigDir)
 
 	return nil
 }

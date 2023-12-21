@@ -276,7 +276,9 @@ func (c *Client) getImageRef(image string) (name.Reference, error) {
 
 	if len(c.registryURL) > 0 {
 		re := regexp.MustCompile(`(?i)^https?://`)
+		log.Entry().Infof("Initial registry  %v ", c.registryURL)
 		registry = re.ReplaceAllString(c.registryURL, "")
+		log.Entry().Infof("after replacement, final registry  %v ", registry)
 		opts = append(opts, name.WithDefaultRegistry(registry))
 	}
 

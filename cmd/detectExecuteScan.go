@@ -563,11 +563,11 @@ func addDetectArgsImages(args []string, config detectExecuteScanOptions, utils d
 
 	switch config.ContainerDistro {
 	case "ubuntu":
-		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8082")
+		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:9002")
 	case "centos":
-		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8081")
+		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:9001")
 	case "alpine":
-		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8080")
+		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:9000")
 	default:
 		return nil, fmt.Errorf("unknown container distro %q", config.ContainerDistro)
 	}

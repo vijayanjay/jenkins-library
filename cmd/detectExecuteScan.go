@@ -560,6 +560,7 @@ func addDetectArgsImages(args []string, config detectExecuteScanOptions, utils d
 	args = append(args, fmt.Sprintf("--detect.docker.passthrough.imageinspector.service.distro.default=%s", config.ContainerDistro))
 	args = append(args, "--detect.docker.passthrough.imageinspector.service.start=true")
 	args = append(args, "--detect.docker.passthrough.output.include.squashedimage=false")
+	args = append(args, "--detect.diagnostic")
 
 	switch config.ContainerDistro {
 	case "ubuntu":

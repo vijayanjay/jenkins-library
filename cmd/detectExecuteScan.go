@@ -555,10 +555,10 @@ func addDetectArgsImages(args []string, config detectExecuteScanOptions, utils d
 	args = append(args, "--detect.target.type=IMAGE")
 	// https://community.synopsys.com/s/article/Docker-image-scanning-CLI-examples-and-some-Q-As
 	args = append(args, "--detect.tools.excluded=DETECTOR")
-	args = append(args, "--detect.docker.passthrough.shared.dir.path.local=/var/jenkins_home")
-	args = append(args, "--detect.docker.passthrough.shared.dir.path.imageinspector=/var/jenkins_home")
+	args = append(args, "--detect.docker.passthrough.shared.dir.path.local=/opt/blackduck/blackduck-imageinspector/shared")
+	args = append(args, "--detect.docker.passthrough.shared.dir.path.imageinspector=/opt/blackduck/blackduck-imageinspector/shared")
 	args = append(args, fmt.Sprintf("--detect.docker.passthrough.imageinspector.service.distro.default=%s", config.ContainerDistro))
-	args = append(args, "--detect.docker.passthrough.imageinspector.service.start=true")
+	args = append(args, "--detect.docker.passthrough.imageinspector.service.start=false")
 	args = append(args, "--detect.docker.passthrough.output.include.squashedimage=false")
 	args = append(args, "--detect.diagnostic")
 

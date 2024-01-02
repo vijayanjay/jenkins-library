@@ -257,6 +257,10 @@ func (c *Client) DownloadImage(imageSource, targetFile string) (v1.Image, error)
 		return nil, err
 	}
 
+	if err := os.Chmod(targetFile, 0644); err != nil {
+		return nil, err
+	}
+
 	return img, nil
 }
 

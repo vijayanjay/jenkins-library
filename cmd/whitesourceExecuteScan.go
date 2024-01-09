@@ -14,6 +14,7 @@ import (
 	piperDocker "github.com/SAP/jenkins-library/pkg/docker"
 	piperGithub "github.com/SAP/jenkins-library/pkg/github"
 	piperhttp "github.com/SAP/jenkins-library/pkg/http"
+	"github.com/SAP/jenkins-library/pkg/piperenv"
 	ws "github.com/SAP/jenkins-library/pkg/whitesource"
 
 	"github.com/SAP/jenkins-library/pkg/command"
@@ -196,28 +197,41 @@ func runWhitesourceExecuteScan(ctx context.Context, config *ScanOptions, scan *w
 }
 
 func runWhitesourceScan(ctx context.Context, config *ScanOptions, scan *ws.Scan, utils whitesourceUtils, sys whitesource, commonPipelineEnvironment *whitesourceExecuteScanCommonPipelineEnvironment, influx *whitesourceExecuteScanInflux) error {
+
 	// Download Docker image for container scan
 	// ToDo: move it to improve testability
 	if config.BuildTool == "docker" {
-		saveImageOptions := containerSaveImageOptions{
-			ContainerImage:            config.ScanImage,
-			ContainerRegistryURL:      config.ScanImageRegistryURL,
-			ContainerRegistryUser:     config.ContainerRegistryUser,
-			ContainerRegistryPassword: config.ContainerRegistryPassword,
-			DockerConfigJSON:          config.DockerConfigJSON,
-			FilePath:                  config.ProjectName,
-			ImageFormat:               "legacy", // keep the image format legacy or whitesource is not able to read layers
-		}
-		dClientOptions := piperDocker.ClientOptions{ImageName: saveImageOptions.ContainerImage, RegistryURL: saveImageOptions.ContainerRegistryURL, LocalPath: "", ImageFormat: "legacy"}
-		dClient := &piperDocker.Client{}
-		dClient.SetOptions(dClientOptions)
-		if _, err := runContainerSaveImage(&saveImageOptions, &telemetry.CustomData{}, "./cache", "", dClient, utils); err != nil {
-			if strings.Contains(fmt.Sprint(err), "no image found") {
-				log.SetErrorCategory(log.ErrorConfiguration)
+		if config.ScanImages {
+			cpePath := filepath.Join(GeneralConfig.EnvRootPath, "commonPipelineEnvironment")
+			imagesRaw := piperenv.GetResourceParameter(cpePath, "container", "imageNameTags.json")
+			if imagesRaw == "" {
+				log.Entry().Debugf("No images found to be scanned")
+				return nil
 			}
-			return errors.Wrapf(err, "failed to download Docker image %v", config.ScanImage)
-		}
+			images := []string{}
+			err := json.Unmarshal([]byte(imagesRaw), &images)
+			if err != nil {
+				return errors.Wrap(err, "Unable to read cpe")
+			}
+			config.ContainerRegistryUser = piperenv.GetResourceParameter(cpePath, "container", "repositoryUsername")
+			config.ContainerRegistryPassword = piperenv.GetResourceParameter(cpePath, "container", "repositoryPassword")
+			config.ScanImageRegistryURL = piperenv.GetResourceParameter(cpePath, "container", "registryUrl")
 
+			log.Entry().Infof("Scanning %d images", len(images))
+			for _, image := range images {
+				config.ScanImage = image
+				err := downloadDockerImageAsTar(config, utils)
+				if err != nil {
+					return errors.Wrapf(err, "failed to download docker image")
+				}
+
+			}
+		} else {
+			err := downloadDockerImageAsTar(config, utils)
+			if err != nil {
+				return errors.Wrapf(err, "failed to download docker image")
+			}
+		}
 	}
 
 	// Start the scan
@@ -375,8 +389,10 @@ func resolveProjectIdentifiers(config *ScanOptions, scan *ws.Scan, utils whiteso
 	if err := resolveProductToken(config, sys); err != nil {
 		return errors.Wrap(err, "error resolving product token")
 	}
-	if err := resolveAggregateProjectToken(config, sys); err != nil {
-		return errors.Wrap(err, "error resolving aggregate project token")
+	if !config.SkipParentProjectResolution {
+		if err := resolveAggregateProjectToken(config, sys); err != nil {
+			return errors.Wrap(err, "error resolving aggregate project token")
+		}
 	}
 
 	scan.ProductToken = config.ProductToken
@@ -465,33 +481,34 @@ func validateProductVersion(version string) string {
 
 func wsScanOptions(config *ScanOptions) *ws.ScanOptions {
 	return &ws.ScanOptions{
-		BuildTool:                  config.BuildTool,
-		ScanType:                   "", // no longer provided via config
-		OrgToken:                   config.OrgToken,
-		UserToken:                  config.UserToken,
-		ProductName:                config.ProductName,
-		ProductToken:               config.ProductToken,
-		ProductVersion:             config.Version,
-		ProjectName:                config.ProjectName,
-		BuildDescriptorFile:        config.BuildDescriptorFile,
-		BuildDescriptorExcludeList: config.BuildDescriptorExcludeList,
-		PomPath:                    config.BuildDescriptorFile,
-		M2Path:                     config.M2Path,
-		GlobalSettingsFile:         config.GlobalSettingsFile,
-		ProjectSettingsFile:        config.ProjectSettingsFile,
-		InstallArtifacts:           config.InstallArtifacts,
-		DefaultNpmRegistry:         config.DefaultNpmRegistry,
-		AgentDownloadURL:           config.AgentDownloadURL,
-		AgentFileName:              config.AgentFileName,
-		ConfigFilePath:             config.ConfigFilePath,
-		Includes:                   config.Includes,
-		Excludes:                   config.Excludes,
-		JreDownloadURL:             config.JreDownloadURL,
-		AgentURL:                   config.AgentURL,
-		ServiceURL:                 config.ServiceURL,
-		ScanPath:                   config.ScanPath,
-		InstallCommand:             config.InstallCommand,
-		Verbose:                    GeneralConfig.Verbose,
+		BuildTool:                   config.BuildTool,
+		ScanType:                    "", // no longer provided via config
+		OrgToken:                    config.OrgToken,
+		UserToken:                   config.UserToken,
+		ProductName:                 config.ProductName,
+		ProductToken:                config.ProductToken,
+		ProductVersion:              config.Version,
+		ProjectName:                 config.ProjectName,
+		BuildDescriptorFile:         config.BuildDescriptorFile,
+		BuildDescriptorExcludeList:  config.BuildDescriptorExcludeList,
+		PomPath:                     config.BuildDescriptorFile,
+		M2Path:                      config.M2Path,
+		GlobalSettingsFile:          config.GlobalSettingsFile,
+		ProjectSettingsFile:         config.ProjectSettingsFile,
+		InstallArtifacts:            config.InstallArtifacts,
+		DefaultNpmRegistry:          config.DefaultNpmRegistry,
+		AgentDownloadURL:            config.AgentDownloadURL,
+		AgentFileName:               config.AgentFileName,
+		ConfigFilePath:              config.ConfigFilePath,
+		Includes:                    config.Includes,
+		Excludes:                    config.Excludes,
+		JreDownloadURL:              config.JreDownloadURL,
+		AgentURL:                    config.AgentURL,
+		ServiceURL:                  config.ServiceURL,
+		ScanPath:                    config.ScanPath,
+		InstallCommand:              config.InstallCommand,
+		Verbose:                     GeneralConfig.Verbose,
+		SkipParentProjectResolution: config.SkipParentProjectResolution,
 	}
 }
 
@@ -1085,4 +1102,28 @@ func createToolRecordWhitesource(utils whitesourceUtils, workspace string, confi
 		return "", err
 	}
 	return record.GetFileName(), nil
+}
+
+func downloadDockerImageAsTar(config *ScanOptions, utils whitesourceUtils) error {
+
+	saveImageOptions := containerSaveImageOptions{
+		ContainerImage:            config.ScanImage,
+		ContainerRegistryURL:      config.ScanImageRegistryURL,
+		ContainerRegistryUser:     config.ContainerRegistryUser,
+		ContainerRegistryPassword: config.ContainerRegistryPassword,
+		DockerConfigJSON:          config.DockerConfigJSON,
+		FilePath:                  config.ScanPath + "/" + config.ScanImage, // previously was config.ProjectName
+		ImageFormat:               "legacy",                                 // keep the image format legacy or whitesource is not able to read layers
+	}
+	dClientOptions := piperDocker.ClientOptions{ImageName: saveImageOptions.ContainerImage, RegistryURL: saveImageOptions.ContainerRegistryURL, LocalPath: "", ImageFormat: "legacy"}
+	dClient := &piperDocker.Client{}
+	dClient.SetOptions(dClientOptions)
+	if _, err := runContainerSaveImage(&saveImageOptions, &telemetry.CustomData{}, "./cache", "", dClient, utils); err != nil {
+		if strings.Contains(fmt.Sprint(err), "no image found") {
+			log.SetErrorCategory(log.ErrorConfiguration)
+		}
+		return errors.Wrapf(err, "failed to download Docker image %v", config.ScanImage)
+	}
+
+	return nil
 }

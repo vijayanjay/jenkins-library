@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mitchellh/mapstructure"
 	"strings"
+
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/SAP/jenkins-library/pkg/buildsettings"
 	"github.com/SAP/jenkins-library/pkg/certutils"
@@ -90,21 +91,25 @@ func runKanikoExecute(config *kanikoExecuteOptions, telemetryData *telemetry.Cus
 	// if : user provided docker config json and registry credentials present then enahance the user provided docker provided json with the registry credentials
 	// else if : no user provided docker config json then create a new docker config json for kaniko
 	if len(config.DockerConfigJSON) > 0 && len(config.ContainerRegistryURL) > 0 && len(config.ContainerRegistryPassword) > 0 && len(config.ContainerRegistryUser) > 0 {
+		log.Entry().Debugf("user provided docker config json")
 		targetConfigJson, err := docker.CreateDockerConfigJSON(config.ContainerRegistryURL, config.ContainerRegistryUser, config.ContainerRegistryPassword, "", config.DockerConfigJSON, fileUtils)
 		if err != nil {
 			return errors.Wrapf(err, "failed to update existing docker config json file '%v'", config.DockerConfigJSON)
 		}
-
+		commonPipelineEnvironment.container.repositoryUsername = config.ContainerRegistryUser
+		commonPipelineEnvironment.container.repositoryPassword = config.ContainerRegistryPassword
 		dockerConfig, err = fileUtils.FileRead(targetConfigJson)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read enhanced file '%v'", config.DockerConfigJSON)
 		}
 	} else if len(config.DockerConfigJSON) == 0 && len(config.ContainerRegistryURL) > 0 && len(config.ContainerRegistryPassword) > 0 && len(config.ContainerRegistryUser) > 0 {
+		log.Entry().Debugf("user didn't provided docker config json")
 		targetConfigJson, err := docker.CreateDockerConfigJSON(config.ContainerRegistryURL, config.ContainerRegistryUser, config.ContainerRegistryPassword, "", "/kaniko/.docker/config.json", fileUtils)
 		if err != nil {
 			return errors.Wrap(err, "failed to create new docker config json at /kaniko/.docker/config.json")
 		}
-
+		commonPipelineEnvironment.container.repositoryUsername = config.ContainerRegistryUser
+		commonPipelineEnvironment.container.repositoryPassword = config.ContainerRegistryPassword
 		dockerConfig, err = fileUtils.FileRead(targetConfigJson)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read new docker config file at /kaniko/.docker/config.json")

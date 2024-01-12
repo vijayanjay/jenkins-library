@@ -47,12 +47,14 @@ type kanikoExecuteOptions struct {
 
 type kanikoExecuteCommonPipelineEnvironment struct {
 	container struct {
-		registryURL   string
-		imageNameTag  string
-		imageDigest   string
-		imageNames    []string
-		imageNameTags []string
-		imageDigests  []string
+		registryURL        string
+		repositoryUsername string
+		repositoryPassword string
+		imageNameTag       string
+		imageDigest        string
+		imageNames         []string
+		imageNameTags      []string
+		imageDigests       []string
 	}
 	custom struct {
 		buildSettingsInfo string
@@ -66,6 +68,8 @@ func (p *kanikoExecuteCommonPipelineEnvironment) persist(path, resourceName stri
 		value    interface{}
 	}{
 		{category: "container", name: "registryUrl", value: p.container.registryURL},
+		{category: "container", name: "repositoryUsername", value: p.container.repositoryUsername},
+		{category: "container", name: "repositoryPassword", value: p.container.repositoryPassword},
 		{category: "container", name: "imageNameTag", value: p.container.imageNameTag},
 		{category: "container", name: "imageDigest", value: p.container.imageDigest},
 		{category: "container", name: "imageNames", value: p.container.imageNames},
@@ -568,6 +572,8 @@ func kanikoExecuteMetadata() config.StepData {
 						Type: "piperEnvironment",
 						Parameters: []map[string]interface{}{
 							{"name": "container/registryUrl"},
+							{"name": "container/repositoryUsername"},
+							{"name": "container/repositoryPassword"},
 							{"name": "container/imageNameTag"},
 							{"name": "container/imageDigest"},
 							{"name": "container/imageNames", "type": "[]string"},

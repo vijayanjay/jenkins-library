@@ -96,8 +96,7 @@ func runKanikoExecute(config *kanikoExecuteOptions, telemetryData *telemetry.Cus
 		if err != nil {
 			return errors.Wrapf(err, "failed to update existing docker config json file '%v'", config.DockerConfigJSON)
 		}
-		commonPipelineEnvironment.container.repositoryUsername = config.ContainerRegistryUser
-		commonPipelineEnvironment.container.repositoryPassword = config.ContainerRegistryPassword
+
 		dockerConfig, err = fileUtils.FileRead(targetConfigJson)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read enhanced file '%v'", config.DockerConfigJSON)
@@ -108,8 +107,7 @@ func runKanikoExecute(config *kanikoExecuteOptions, telemetryData *telemetry.Cus
 		if err != nil {
 			return errors.Wrap(err, "failed to create new docker config json at /kaniko/.docker/config.json")
 		}
-		commonPipelineEnvironment.container.repositoryUsername = config.ContainerRegistryUser
-		commonPipelineEnvironment.container.repositoryPassword = config.ContainerRegistryPassword
+
 		dockerConfig, err = fileUtils.FileRead(targetConfigJson)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read new docker config file at /kaniko/.docker/config.json")
@@ -118,6 +116,12 @@ func runKanikoExecute(config *kanikoExecuteOptions, telemetryData *telemetry.Cus
 
 	if err := fileUtils.FileWrite("/kaniko/.docker/config.json", dockerConfig, 0644); err != nil {
 		return errors.Wrap(err, "failed to write file '/kaniko/.docker/config.json'")
+	}
+
+	if len(config.ContainerRegistryPassword) > 0 && len(config.ContainerRegistryUser) > 0 {
+		log.Entry().Debugf("updated user creds to CPE env")
+		commonPipelineEnvironment.container.repositoryUsername = config.ContainerRegistryUser
+		commonPipelineEnvironment.container.repositoryPassword = config.ContainerRegistryPassword
 	}
 
 	log.Entry().Debugf("preparing build settings information...")

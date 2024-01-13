@@ -261,10 +261,11 @@ func (c *Client) DownloadImage(imageSource, targetFile string) (v1.Image, error)
 	} else {
 		fmt.Printf("File %s exists.\n", tmpFile.Name())
 	}
-	if err := os.Chmod(tmpFile.Name(), 0644); err != nil {
+	if err := os.Chmod(tmpFile.Name(), 0777); err != nil {
 		return nil, err
 	}
 	log.Entry().Infof("successfully changed permission")
+	log.Entry().Infof("Renaming file from %s to %s", tmpFile.Name(), targetFile)
 	if err := os.Rename(tmpFile.Name(), targetFile); err != nil {
 		defer os.Remove(tmpFile.Name())
 		return nil, err

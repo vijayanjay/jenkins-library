@@ -248,12 +248,13 @@ func (c *Client) DownloadImage(imageSource, targetFile string) (v1.Image, error)
 	args := []string{imageRef.Name(), tmpFile.Name(), "--format=" + c.imageFormat}
 	craneCmd.SetArgs(args)
 
+	log.Entry().Infof("Done pulling")
 	if err := craneCmd.Execute(); err != nil {
 		log.Entry().Infof("craneCmd execution failed")
 		defer os.Remove(tmpFile.Name())
 		return nil, err
 	}
-
+	log.Entry().Infof("Done executing")
 	if err := os.Rename(tmpFile.Name(), targetFile); err != nil {
 		defer os.Remove(tmpFile.Name())
 		return nil, err

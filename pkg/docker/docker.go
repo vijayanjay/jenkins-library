@@ -259,11 +259,11 @@ func (c *Client) DownloadImage(imageSource, targetFile string) (v1.Image, error)
 		defer os.Remove(tmpFile.Name())
 		return nil, err
 	}
-
+	log.Entry().Infof("Done renaming and removing. printing file name %s", targetFile)
 	if err := os.Chmod(targetFile, 0644); err != nil {
 		return nil, err
 	}
-
+	log.Entry().Infof("Done changing permission")
 	return img, nil
 }
 

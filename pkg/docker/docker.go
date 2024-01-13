@@ -256,6 +256,11 @@ func (c *Client) DownloadImage(imageSource, targetFile string) (v1.Image, error)
 		return nil, err
 	}
 	log.Entry().Infof("Done executing")
+	if _, err := os.Stat(tmpFile.Name()); os.IsNotExist(err) {
+		fmt.Printf("File %s does not exist.\n", tmpFile.Name())
+	} else {
+		fmt.Printf("File %s exists.\n", tmpFile.Name())
+	}
 	if err := os.Rename(tmpFile.Name(), targetFile); err != nil {
 		defer os.Remove(tmpFile.Name())
 		return nil, err

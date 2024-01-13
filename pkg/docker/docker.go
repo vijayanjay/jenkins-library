@@ -231,16 +231,17 @@ func (c *Client) DownloadImage(imageSource, targetFile string) (v1.Image, error)
 		return nil, err
 	}
 
+	log.Entry().Infof("Trying to do crane pull ")
 	img, err := crane.Pull(imageRef.Name(), noOpts...)
 	if err != nil {
 		return nil, err
 	}
-
+	log.Entry().Infof("Done  crane pull now creating tmp")
 	tmpFile, err := os.CreateTemp(".", ".piper-download-")
 	if err != nil {
 		return nil, err
 	}
-
+	log.Entry().Infof("Done creating tmp")
 	craneCmd := cranecmd.NewCmdPull(&noOpts)
 	craneCmd.SetOut(log.Writer())
 	craneCmd.SetErr(log.Writer())
@@ -248,6 +249,7 @@ func (c *Client) DownloadImage(imageSource, targetFile string) (v1.Image, error)
 	craneCmd.SetArgs(args)
 
 	if err := craneCmd.Execute(); err != nil {
+		log.Entry().Infof("craneCmd execution failed")
 		defer os.Remove(tmpFile.Name())
 		return nil, err
 	}

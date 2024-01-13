@@ -246,6 +246,7 @@ func (c *Client) DownloadImage(imageSource, targetFile string) (v1.Image, error)
 	craneCmd.SetOut(log.Writer())
 	craneCmd.SetErr(log.Writer())
 	args := []string{imageRef.Name(), tmpFile.Name(), "--format=" + c.imageFormat}
+	log.Entry().Infof("Done creating tmp, args %s", args)
 	craneCmd.SetArgs(args)
 
 	log.Entry().Infof("Done pulling")

@@ -312,8 +312,8 @@ spec:
         type: piperEnvironment
         params:
           - name: container/registryUrl
-          - name: container/repositoryUsername
-          - name: container/repositoryPassword
+          # - name: container/repositoryUsername
+          # - name: container/repositoryPassword
           - name: container/imageNameTag
           - name: container/imageDigest
           - name: container/imageNames

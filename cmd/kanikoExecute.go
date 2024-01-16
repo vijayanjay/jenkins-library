@@ -118,11 +118,11 @@ func runKanikoExecute(config *kanikoExecuteOptions, telemetryData *telemetry.Cus
 		return errors.Wrap(err, "failed to write file '/kaniko/.docker/config.json'")
 	}
 
-	if len(config.ContainerRegistryPassword) > 0 && len(config.ContainerRegistryUser) > 0 {
-		log.Entry().Debugf("updated user creds to CPE env")
-		commonPipelineEnvironment.container.repositoryUsername = config.ContainerRegistryUser
-		commonPipelineEnvironment.container.repositoryPassword = config.ContainerRegistryPassword
-	}
+	// if len(config.ContainerRegistryPassword) > 0 && len(config.ContainerRegistryUser) > 0 {
+	// 	log.Entry().Debugf("updated user creds to CPE env")
+	// 	commonPipelineEnvironment.container.repositoryUsername = config.ContainerRegistryUser
+	// 	commonPipelineEnvironment.container.repositoryPassword = config.ContainerRegistryPassword
+	// }
 
 	log.Entry().Debugf("preparing build settings information...")
 	stepName := "kanikoExecute"

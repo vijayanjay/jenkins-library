@@ -143,12 +143,15 @@ func CreateDockerConfigJSON(registryURL, username, password, targetPath, configP
 }
 
 func fileWrite(path string, content []byte, utils piperutils.FileUtils) error {
+	log.Entry().Infof("fileWrite path %v", path)
+	log.Entry().Infof("fileWrite content %v", string(content))
 	err := utils.MkdirAll(filepath.Dir(path), 0777)
 	if err != nil {
 		return fmt.Errorf("failed to create directory path for the Docker config.json file %v:%w", path, err)
 	}
 	err = utils.FileWrite(path, content, 0666)
 	if err != nil {
+		log.Entry().Infof("fileWrite error %v", err)
 		return fmt.Errorf("failed to write Docker config.json: %w", err)
 	}
 

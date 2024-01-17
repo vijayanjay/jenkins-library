@@ -386,6 +386,7 @@ func (f Files) ReadFile(path string) ([]byte, error) {
 
 // FileWrite is a wrapper for os.WriteFile().
 func (f Files) FileWrite(path string, content []byte, perm os.FileMode) error {
+	fmt.Println("came inside os filewrite")
 	return os.WriteFile(path, content, perm)
 }
 

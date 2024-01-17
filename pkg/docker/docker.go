@@ -97,7 +97,7 @@ func CreateDockerConfigJSON(registryURL, username, password, targetPath, configP
 	if exists, err := utils.FileExists(configPath); exists {
 		log.Entry().Infof("file exists")
 		dockerConfigContent, err = utils.FileRead(configPath)
-		log.Entry().Infof("file exists with content %w", dockerConfigContent)
+		log.Entry().Infof("file exists with content %w", string(dockerConfigContent))
 		if err != nil {
 			return "", fmt.Errorf("failed to read file '%v': %w", configPath, err)
 		}
@@ -122,6 +122,7 @@ func CreateDockerConfigJSON(registryURL, username, password, targetPath, configP
 	if dockerConfig["auths"] == nil {
 		dockerConfig["auths"] = map[string]AuthEntry{registryURL: dockerAuth}
 	} else {
+		log.Entry().Infof("appending the contents to existing file")
 		authEntries, ok := dockerConfig["auths"].(map[string]interface{})
 		if !ok {
 			return "", fmt.Errorf("failed to read authentication entries from file '%v': format invalid", configPath)

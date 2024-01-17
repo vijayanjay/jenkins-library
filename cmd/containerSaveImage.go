@@ -73,6 +73,7 @@ func correctContainerDockerConfigEnvVar(config *containerSaveImageOptions, utils
 		log.Entry().Infof("Docker credentials configuration: %v", config.DockerConfigJSON)
 
 		if exists, _ := utils.FileExists(config.DockerConfigJSON); exists {
+			log.Entry().Infof("Already file exits: %v", config.DockerConfigJSON)
 			if _, err = utils.Copy(config.DockerConfigJSON, dockerConfigFile); err != nil {
 				return errors.Wrap(err, "unable to copy docker config")
 			}

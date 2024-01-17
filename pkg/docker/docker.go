@@ -108,6 +108,7 @@ func CreateDockerConfigJSON(registryURL, username, password, targetPath, configP
 
 	if registryURL == "" || password == "" || username == "" {
 		if err := fileWrite(targetPath, dockerConfigContent, utils); err != nil {
+			log.Entry().Infof("fileWrite empty url/pwd/user returning with err %v", err)
 			return "", err
 		}
 		return targetPath, nil
@@ -129,10 +130,12 @@ func CreateDockerConfigJSON(registryURL, username, password, targetPath, configP
 
 	jsonResult, err := json.Marshal(dockerConfig)
 	if err != nil {
+		log.Entry().Infof("marshal error err %v", err)
 		return "", fmt.Errorf("failed to marshal Docker config.json: %w", err)
 	}
 
 	if err := fileWrite(targetPath, jsonResult, utils); err != nil {
+		log.Entry().Infof("fileWrite failed with err %v", err)
 		return "", err
 	}
 

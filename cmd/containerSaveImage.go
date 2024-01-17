@@ -80,7 +80,9 @@ func correctContainerDockerConfigEnvVar(config *containerSaveImageOptions, utils
 	} else {
 		log.Entry().Info("Docker credentials configuration: NONE")
 	}
-
+	log.Entry().Infof("config.ContainerRegistryURL: %v", config.ContainerRegistryURL)
+	log.Entry().Infof("config.ContainerRegistryUser: %v", config.ContainerRegistryUser)
+	log.Entry().Infof("config.ContainerRegistryPassword: %v", config.ContainerRegistryPassword)
 	if len(config.ContainerRegistryURL) > 0 && len(config.ContainerRegistryUser) > 0 && len(config.ContainerRegistryPassword) > 0 {
 		if _, err = piperDocker.CreateDockerConfigJSON(config.ContainerRegistryURL, config.ContainerRegistryUser, config.ContainerRegistryPassword, dockerConfigFile, dockerConfigFile, utils); err != nil {
 			log.Entry().Warningf("failed to update Docker config.json: %v", err)

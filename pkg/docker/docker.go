@@ -91,11 +91,13 @@ func CreateDockerConfigJSON(registryURL, username, password, targetPath, configP
 	if len(targetPath) == 0 {
 		targetPath = configPath
 	}
-
+	log.Entry().Infof("targetPath, configPath %w %w", targetPath, configPath)
 	dockerConfigContent := []byte{}
 	dockerConfig := map[string]interface{}{}
 	if exists, err := utils.FileExists(configPath); exists {
+		log.Entry().Infof("file exists")
 		dockerConfigContent, err = utils.FileRead(configPath)
+		log.Entry().Infof("file exists with content %w", dockerConfigContent)
 		if err != nil {
 			return "", fmt.Errorf("failed to read file '%v': %w", configPath, err)
 		}

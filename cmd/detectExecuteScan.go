@@ -565,17 +565,17 @@ func addDetectArgsImages(args []string, config detectExecuteScanOptions, utils d
 	//args = append(args, "--detect.docker.passthrough.cleanup.inspector.container=false")
 	//args = append(args, "--logging.level.com.synopsys=DEBUG")
 	//args = append(args, "--detect.diagnostic")
-
-	switch config.ContainerDistro {
-	case "ubuntu":
-		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8082")
-	case "centos":
-		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8081")
-	case "alpine":
-		args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8080")
-	default:
-		return nil, fmt.Errorf("unknown container distro %q", config.ContainerDistro)
-	}
+	args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8082")
+	// switch config.ContainerDistro {
+	// case "ubuntu":
+	// 	args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8082")
+	// case "centos":
+	// 	args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8081")
+	// case "alpine":
+	// 	args = append(args, "--detect.docker.passthrough.imageinspector.service.url=http://localhost:8080")
+	// default:
+	// 	return nil, fmt.Errorf("unknown container distro %q", config.ContainerDistro)
+	// }
 
 	return args, nil
 }

@@ -590,11 +590,24 @@ spec:
       options:
         - name: -u
           value: "0"
+  # sidecars:
+  #   - name: inspector-ubuntu
+  #     image: blackducksoftware/blackduck-imageinspector-ubuntu:5.1.0
+  #     command: ['']
+  #     volumeMounts:
+  #       - mountPath: /opt/blackduck/blackduck-imageinspector/shared
+  #         name: volume
   sidecars:
     - name: inspector-ubuntu
       image: blackducksoftware/blackduck-imageinspector-ubuntu:5.1.0
-      command: ['']
+      command:
+        - "java"
+        - "-jar"
+        - "/opt/blackduck/blackduck-imageinspector/blackduck-imageinspector.jar"
+        - "--server.port=8082"
+        - "--current.linux.distro=ubuntu"
+        - "--inspector.url.ubuntu=http://localhost:9002"
       volumeMounts:
         - mountPath: /opt/blackduck/blackduck-imageinspector/shared
           name: volume
-      
+    

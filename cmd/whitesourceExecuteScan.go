@@ -20,6 +20,7 @@ import (
 	"github.com/SAP/jenkins-library/pkg/format"
 	"github.com/SAP/jenkins-library/pkg/golang"
 	"github.com/SAP/jenkins-library/pkg/log"
+	"github.com/SAP/jenkins-library/pkg/maven"
 	"github.com/SAP/jenkins-library/pkg/npm"
 	"github.com/SAP/jenkins-library/pkg/piperutils"
 	"github.com/SAP/jenkins-library/pkg/reporting"
@@ -215,6 +216,18 @@ func runWhitesourceScan(ctx context.Context, config *ScanOptions, scan *ws.Scan,
 			if err != nil {
 				return errors.Wrapf(err, "failed to download docker image")
 			}
+		}
+	}
+
+	if config.InstallArtifacts {
+		log.Entry().Infof("InstallArtifacts flag is set")
+		err := maven.InstallMavenArtifacts(&maven.EvaluateOptions{
+			M2Path:              config.M2Path,
+			ProjectSettingsFile: config.ProjectSettingsFile,
+			GlobalSettingsFile:  config.GlobalSettingsFile,
+		}, utils)
+		if err != nil {
+			return err
 		}
 	}
 

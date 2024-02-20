@@ -30,7 +30,7 @@ type ConfigOptions []ConfigOption
 // RewriteUAConfigurationFile updates the user's Unified Agent configuration with configuration which should be enforced or just eases the overall configuration
 // It then returns the path to the file containing the updated configuration
 func (s *ScanOptions) RewriteUAConfigurationFile(utils Utils, projectName string) (string, error) {
-
+	log.Entry().Infof("vij  RewriteUAConfigurationFile ")
 	uaContent, err := utils.FileRead(s.ConfigFilePath)
 	uaConfig, propErr := properties.Load(uaContent, properties.UTF8)
 	uaConfigMap := map[string]string{}
@@ -254,10 +254,13 @@ func (c *ConfigOptions) addBuildToolDefaults(config *ScanOptions, utils Utils) e
 	}
 
 	if config.BuildTool == "maven" {
+		log.Entry().Infof("vij  BT maven : %s", config.BuildTool)
 		if len(config.M2Path) > 0 {
+			log.Entry().Infof("vij  BT config.M2Path : %s", config.M2Path)
 			*c = append(*c, ConfigOption{Name: "maven.m2RepositoryPath", Value: config.M2Path, Force: true})
 		}
-
+		log.Entry().Infof("vij  BT config.GlobalSettingsFile : %s", config.GlobalSettingsFile)
+		log.Entry().Infof("vij  BT config.ProjectSettingsFile : %s", config.ProjectSettingsFile)
 		mvnAdditionalArguments, _ := maven.DownloadAndGetMavenParameters(config.GlobalSettingsFile, config.ProjectSettingsFile, utils)
 		mvnAdditionalArguments = append(mvnAdditionalArguments, mvnProjectExcludes(config.BuildDescriptorExcludeList, utils)...)
 

@@ -24,6 +24,7 @@ const projectRegEx = `Project name: ([^,]*), URL: (.*)`
 func (s *Scan) ExecuteUAScan(config *ScanOptions, utils Utils) error {
 	s.AgentName = "WhiteSource Unified Agent"
 	if config.BuildTool != "mta" {
+		log.Entry().Infof("vij  config.BuildTool : %s", config.BuildTool)
 		return s.ExecuteUAScanInPath(config, utils, config.ScanPath)
 	}
 

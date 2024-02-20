@@ -404,6 +404,15 @@ spec:
           - STAGES
           - STEPS
         default: false
+      - name: buildMaven
+        type: bool
+        default: false
+        description:
+          "Experiment parameter for maven multi-modules projects building"
+        scope:
+          - STEPS
+          - STAGES
+          - PARAMETERS  
       - name: scanImageRegistryUrl
         type: string
         description: "For `buildTool: docker`: Defines the registry where the scanImage is located."

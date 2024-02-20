@@ -20,7 +20,6 @@ import (
 	"github.com/SAP/jenkins-library/pkg/format"
 	"github.com/SAP/jenkins-library/pkg/golang"
 	"github.com/SAP/jenkins-library/pkg/log"
-	"github.com/SAP/jenkins-library/pkg/maven"
 	"github.com/SAP/jenkins-library/pkg/npm"
 	"github.com/SAP/jenkins-library/pkg/piperutils"
 	"github.com/SAP/jenkins-library/pkg/reporting"
@@ -160,6 +159,9 @@ func whitesourceExecuteScan(config ScanOptions, _ *telemetry.CustomData, commonP
 }
 
 func runWhitesourceExecuteScan(ctx context.Context, config *ScanOptions, scan *ws.Scan, utils whitesourceUtils, sys whitesource, commonPipelineEnvironment *whitesourceExecuteScanCommonPipelineEnvironment, influx *whitesourceExecuteScanInflux) error {
+	if config.GlobalSettingsFile != "" {
+		log.Entry().Infof("vij  initial global setting : %s", config.GlobalSettingsFile)
+	}
 	if config != nil && config.PrivateModules != "" && config.PrivateModulesGitToken != "" {
 		//configuring go private packages
 		if err := golang.PrepareGolangPrivatePackages("WhitesourceExecuteStep", config.PrivateModules, config.PrivateModulesGitToken); err != nil {
@@ -219,17 +221,28 @@ func runWhitesourceScan(ctx context.Context, config *ScanOptions, scan *ws.Scan,
 		}
 	}
 
-	if config.InstallArtifacts {
-		log.Entry().Infof("InstallArtifacts flag is set")
-		err := maven.InstallMavenArtifacts(&maven.EvaluateOptions{
-			M2Path:              config.M2Path,
-			ProjectSettingsFile: config.ProjectSettingsFile,
-			GlobalSettingsFile:  config.GlobalSettingsFile,
-		}, utils)
-		if err != nil {
-			return err
-		}
-	}
+	// if config.InstallArtifacts {
+	// 	log.Entry().Infof("InstallArtifacts flag is set")
+	// 	err := maven.InstallMavenArtifacts(&maven.EvaluateOptions{
+	// 		M2Path:              config.M2Path,
+	// 		ProjectSettingsFile: config.ProjectSettingsFile,
+	// 		GlobalSettingsFile:  config.GlobalSettingsFile,
+	// 	}, utils)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+
+	// if config.BuildMaven {
+	// 	log.Entry().Infof("running Maven Build")
+	// 	mavenConfig := setMavenConfigForMend(config)
+	// 	mavenUtils := maven.NewUtilsBundle()
+
+	// 	err := runMavenBuild(&mavenConfig, nil, mavenUtils, &mavenBuildCommonPipelineEnvironment{})
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	// Start the scan
 	if err := executeScan(config, scan, utils); err != nil {
@@ -259,6 +272,22 @@ func runWhitesourceScan(ctx context.Context, config *ScanOptions, scan *ws.Scan,
 	}
 	return nil
 }
+
+// func setMavenConfigForMend(config *ScanOptions) mavenBuildOptions {
+// 	mavenConfig := mavenBuildOptions{
+// 		Flatten:                     true,
+// 		Verify:                      false,
+// 		ProjectSettingsFile:         config.ProjectSettingsFile,
+// 		GlobalSettingsFile:          config.GlobalSettingsFile,
+// 		M2Path:                      config.M2Path,
+// 		LogSuccessfulMavenTransfers: false,
+// 		CreateBOM:                   false,
+// 		CustomTLSCertificateLinks:   config.CustomTLSCertificateLinks,
+// 		Publish:                     false,
+// 	}
+
+// 	return mavenConfig
+// }
 
 func checkAndReportScanResults(ctx context.Context, config *ScanOptions, scan *ws.Scan, utils whitesourceUtils, sys whitesource, influx *whitesourceExecuteScanInflux) ([]piperutils.Path, error) {
 	reportPaths := []piperutils.Path{}
@@ -516,6 +545,7 @@ func executeScan(config *ScanOptions, scan *ws.Scan, utils whitesourceUtils) err
 	options := wsScanOptions(config)
 
 	if options.InstallCommand != "" {
+		log.Entry().Infof("vij  InstallCommand : %s", options.InstallCommand)
 		installCommandTokens := strings.Split(config.InstallCommand, " ")
 		if err := utils.RunExecutable(installCommandTokens[0], installCommandTokens[1:]...); err != nil {
 			log.SetErrorCategory(log.ErrorCustom)

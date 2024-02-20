@@ -142,6 +142,9 @@ func newWhitesourceScan(config *ScanOptions) *ws.Scan {
 }
 
 func whitesourceExecuteScan(config ScanOptions, _ *telemetry.CustomData, commonPipelineEnvironment *whitesourceExecuteScanCommonPipelineEnvironment, influx *whitesourceExecuteScanInflux) {
+	if config.GlobalSettingsFile != "" {
+		log.Entry().Infof("vij whitesourceExecuteScan initial global setting : %s", config.GlobalSettingsFile)
+	}
 	ctx, client, err := piperGithub.
 		NewClientBuilder(config.GithubToken, config.GithubAPIURL).
 		WithTrustedCerts(config.CustomTLSCertificateLinks).Build()

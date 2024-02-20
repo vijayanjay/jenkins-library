@@ -385,6 +385,7 @@ func resolveProjectIdentifiers(config *ScanOptions, scan *ws.Scan, utils whiteso
 			log.Entry().Infof("Resolved product version '%s'", config.Version)
 		}
 	} else {
+		log.Entry().Infof("vij detailed config config.ScanImage: %v config.ProjectSettingsFile:%v, config.GlobalSettingsFile: %v, config.M2Path:%v ", config.ScanImage, config.ProjectSettingsFile, config.GlobalSettingsFile, config.M2Path)
 		options := &versioning.Options{
 			DockerImage:         config.ScanImage,
 			ProjectSettingsFile: config.ProjectSettingsFile,

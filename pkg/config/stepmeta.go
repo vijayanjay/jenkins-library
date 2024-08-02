@@ -462,9 +462,9 @@ func (m *StepParameters) GetReference(refType string) *ResourceReference {
 func getFilterForResourceReferences(params []StepParameters) []string {
 	var filter []string
 	for _, param := range params {
-		fmt.Println("vij param:", param)
+		log.Entry().Info("vij param:", param)
 		reference := param.GetReference("vaultSecret")
-		fmt.Println("vij reference:", reference)
+		log.Entry().Info("vij reference:", reference)
 		if reference == nil {
 			reference = param.GetReference("vaultSecretFile")
 		}

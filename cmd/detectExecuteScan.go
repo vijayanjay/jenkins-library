@@ -442,7 +442,7 @@ func getDetectScript(config detectExecuteScanOptions, utils detectUtils) error {
 }
 
 func addDetectArgs(args []string, config detectExecuteScanOptions, utils detectUtils, sys *blackduckSystem, versionSuffix, locationSuffix string) ([]string, error) {
-	fmt.Println("vij addDetectArgs")
+	log.Entry().Info("vij addDetectArgs")
 	detectVersionName := getVersionName(config)
 	if versionSuffix != NO_VERSION_SUFFIX {
 		detectVersionName = fmt.Sprintf("%s-%s", detectVersionName, versionSuffix)
